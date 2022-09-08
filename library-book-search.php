@@ -59,8 +59,11 @@ if ( ! class_exists( 'LibraryBookSearch' ) ) {
 
 			wp_enqueue_style( 'lbs-style', LBS_DIR_URL . 'assets/css/lbs-style/lbs-style.css' );
 			wp_enqueue_style( 'lbs-jquery-style', 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css' );
-			wp_enqueue_script( 'lbs-script', LBS_DIR_URL . 'assets/js/lbs-script.js' );
+			wp_enqueue_style( 'lbs-datatables-style', 'https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css' );
+			
 			wp_enqueue_script( 'jquery-ui-script', 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js' );
+			wp_enqueue_script( 'jquery-datatables-script', 'https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js' );
+			wp_enqueue_script( 'lbs-script', LBS_DIR_URL . 'assets/js/lbs-script.js' );
 
 			wp_localize_script( 'lbs-script', 'localized_data', $localize_data );
 		}
@@ -125,11 +128,67 @@ if ( ! class_exists( 'LibraryBookSearch' ) ) {
 			add_shortcode( 'booksearch', array( $lbs_custom_shortcode, 'lbs_custom_shortcode' ) );
 		}
 
+		public function title_filter( $where, &$wp_query ){
+			global $wpdb;
+			if ( $search_term = $wp_query->get( 's' ) ) {
+				$where .= ' AND ' . $wpdb->posts . '.post_title LIKE \'%' . $wpdb->esc_like( $search_term ) . '%\'';
+			}
+			return $where;
+		}
+
 		/**
 		 * Ajaxified Search For Books In Shortcode.
 		 */
 		public function lbs_search() {
-			wp_send_json_success( wp_verify_nonce( filter_input_array( INPUT_POST ) ) );
+
+			global $wpdb;
+
+			$search_data_input = filter_input_array( INPUT_POST )['data'];
+
+			$search_book_name 		= $search_data_input['book_name'];
+			$search_book_author 	= $search_data_input['book_author'];
+			$search_book_publisher 	= $search_data_input['book_publisher'];
+			$search_book_rating 	= $search_data_input['book_rating'];
+			$search_book_price_from = $search_data_input['book_price_from'];
+			$search_book_price_to 	= $search_data_input['book_price_to'];
+
+			$args = array(
+				'posts_per_page' 	=> -1,
+				'post_type' 		=> 'library-search-book',
+				'post_status' 		=> 'publish',
+				's'					=> $search_book_name,
+				'order_by'			=> 'title',
+				'order'				=> 'ASC',
+				'tax_query' => array(
+					array(
+						'taxonomy' => 'lbs-author-taxonomy',
+						'field' => 'id',
+						'terms' => $search_book_author
+					)
+				)
+			);
+
+			add_filter( 'posts_where', array( $this, 'title_filter' ), 10, 2 );
+			$get_books = new WP_Query($args); 
+			remove_filter( 'posts_where', array( $this, 'title_filter' ), 10 );
+
+			$i=1;
+			$books_table = "<tr><td>Sorry! No Books Found</td></tr>";
+			foreach( $get_books->posts as $books ){
+				$books_table = "<tr>
+					<td>" . $i . "</td>
+					<td>" . $books->post_title . "</td>
+					<td>" . $i . "</td>
+					<td>" . $i . "</td>
+					<td>" . $i . "</td>
+					<td>" . $i . "</td>
+				</tr>";
+				$i++;
+			}
+
+			wp_send_json_success( $books_table );
+			
+			die();
 		}
 
 	}
@@ -154,6 +213,7 @@ if ( ! class_exists( 'LibraryBookSearch' ) ) {
 
 	// Enabling ajaxified search for Library Book Search.
 	add_action( 'wp_ajax_lbs-search', array( $library_book_search, 'lbs_search' ) );
+	add_action( 'wp_ajax_no_priv_lbs-search', array( $library_book_search, 'lbs_search' ) );
 
 	// Calling function of metabox.
 	$library_book_search->library_book_search_custom_meta_box();

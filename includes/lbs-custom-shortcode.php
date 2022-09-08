@@ -24,18 +24,27 @@ class LbsCustomShortcode {
 		?>
 			<div class="lbs-search-form" id="lbs-search-form">
 				<h4 class="lbs-form-title"><?php esc_html_e( 'Book Search', 'library-book-search' ); ?></h4>
-				<form method="post" id="lbs-search-form" action="<?php echo esc_html( admin_url( 'admin-ajax.php' ) ); ?>" >
+				<form method="post" id="lbs-search-form" action="" >
 					<div class="lbs-fieldset">
 						<label for="lbs-book-name"><?php esc_html_e( 'Book Name: ', 'library-book-search' ); ?></label>
-						<input type="textbox" name="lbs-book-name" />
+						<input type="textbox" name="lbs-book-name" class="lbs-book-name" />
 					</div>
 					<div class="lbs-fieldset">
 						<label for="lbs-book-author"><?php esc_html_e( 'Author: ', 'library-book-search' ); ?></label>
-						<input type="textbox" name="lbs-book-author" />
+						<select name='lbs-book-author' class="lbs-book-author">
+							<option value=""><?php esc_html_e( 'Choose Any One', 'library-book-search' ); ?></option>
+							<?php
+							$texonomy = 'lbs-author-taxonomy';
+							$terms    = get_terms( $texonomy );
+							foreach ( $terms as $term ) {
+								echo "<option value='" . esc_html( $term->term_id ) . "' >" . esc_html( $term->name ) . '</option>';
+							}
+						?>
+						</select>
 					</div>
 					<div class="lbs-fieldset">
 						<label for="lbs-book-publisher"><?php esc_html_e( 'Publisher: ', 'library-book-search' ); ?></label>
-						<select name='lbs-book-publishers'>
+						<select name='lbs-book-publishers' class="lbs-book-publisher">
 							<option value=""><?php esc_html_e( 'Choose Any One', 'library-book-search' ); ?></option>
 							<?php
 							$texonomy = 'lbs-publisher-taxonomy';
@@ -48,7 +57,7 @@ class LbsCustomShortcode {
 					</div>
 					<div class="lbs-fieldset">
 						<label for="lbs-book-rating"><?php esc_html_e( 'Rating: ', 'library-book-search' ); ?></label>
-						<select name='lbs-book-rating'>
+						<select name='lbs-book-rating' class="lbs-book-rating">
 							<option value=""><?php esc_html_e( 'Choose Any One', 'library-book-search' ); ?></option>
 							<option value="1"><?php esc_html_e( '1', 'library-book-search' ); ?></option>
 							<option value="2"><?php esc_html_e( '2', 'library-book-search' ); ?></option>
@@ -74,14 +83,17 @@ class LbsCustomShortcode {
 			<div class="lbs-book-data" id="lbs-book-data">
 
 				<table class="lbs-book-data-table">
-					<tr>
-						<th><?php esc_html_e( 'No', 'library-book-search' ); ?></th>
-						<th><?php esc_html_e( 'Book Name', 'library-book-search' ); ?></th>
-						<th><?php esc_html_e( 'Price', 'library-book-search' ); ?></th>
-						<th><?php esc_html_e( 'Author', 'library-book-search' ); ?></th>
-						<th><?php esc_html_e( 'Publisher', 'library-book-search' ); ?></th>
-						<th><?php esc_html_e( 'Rating', 'library-book-search' ); ?></th>
-					</tr>
+					<thead>
+						<tr>
+							<th><?php esc_html_e( 'No', 'library-book-search' ); ?></th>
+							<th><?php esc_html_e( 'Book Name', 'library-book-search' ); ?></th>
+							<th><?php esc_html_e( 'Price', 'library-book-search' ); ?></th>
+							<th><?php esc_html_e( 'Author', 'library-book-search' ); ?></th>
+							<th><?php esc_html_e( 'Publisher', 'library-book-search' ); ?></th>
+							<th><?php esc_html_e( 'Rating', 'library-book-search' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
 						<?php
 						$i = 1;
 
@@ -90,7 +102,7 @@ class LbsCustomShortcode {
 						// Query to fetch post of Library Books.
 						$posts_query = new WP_Query(
 							array(
-								'posts_per_page' => 2,
+								'posts_per_page' => 10,
 								'post_type'      => 'library-search-book',
 								'post_status'    => 'publish',
 								'paged'          => $paged,
@@ -138,30 +150,32 @@ class LbsCustomShortcode {
 							$rating    = ! empty( $book_meta['lbs-stars'] ) ? ( $book_meta['lbs-stars'] )[0] : __( 'N/A', 'library-book-search' );
 
 								echo '<tr>' .
-									'<td>' .
-										esc_html( $i ) .
-									'</td>' .
-									'<td>' .
-										"<a href='" . esc_url( get_permalink( $id ) ) . "'>" . esc_html( $book_title ) . '</a>' .
-									'</td>' .
-									'<td>' .
-										esc_html( $price ) .
-									'</td>' .
-									'<td>' .
-										esc_html( rtrim( $author_list, ', ' ) ) .
-									'</td>' .
-									'<td>' .
-										esc_html( rtrim( $publisher_list, ', ' ) ) .
-									'</td>' .
-									'<td>' .
-										esc_html( $rating ) .
-									'</td>' .
+										'<td>' .
+											esc_html( $i ) .
+										'</td>' .
+										'<td>' .
+											"<a href='" . esc_url( get_permalink( $id ) ) . "'>" . esc_html( $book_title ) . '</a>' .
+										'</td>' .
+										'<td>' .
+											esc_html( $price ) .
+										'</td>' .
+										'<td>' .
+											esc_html( rtrim( $author_list, ', ' ) ) .
+										'</td>' .
+										'<td>' .
+											esc_html( rtrim( $publisher_list, ', ' ) ) .
+										'</td>' .
+										'<td>' .
+											esc_html( $rating ) .
+										'</td>' .
 									'</tr>';
 									$i++;
 						}
 						?>
+						</tbody>
 				</table>
 			</div>
+			<div id="feedback"></div>
 		<?php
 	}
 }
