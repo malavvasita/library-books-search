@@ -159,29 +159,58 @@ if ( ! class_exists( 'LibraryBookSearch' ) ) {
 				's'					=> $search_book_name,
 				'order_by'			=> 'title',
 				'order'				=> 'ASC',
-				'tax_query' => array(
-					array(
-						'taxonomy' => 'lbs-author-taxonomy',
-						'field' => 'id',
-						'terms' => $search_book_author
-					)
-				)
 			);
+
+			$author_tax_query 	= array(
+						array(
+							'taxonomy' => 'lbs-author-taxonomy',
+							'field' => 'id',
+							'terms' => $search_book_author
+						)
+					);
+
+			$publisher_tax_query 	= array(
+						array(
+							'taxonomy' => 'lbs-publisher-taxonomy',
+							'field' => 'id',
+							'terms' => $search_book_publisher
+						)
+					);
+
+
+			if( isset( $search_book_author ) && ! empty( $search_book_author ) ){
+				$args['tax_query']['relation'] = "OR";
+				array_push($args['tax_query'], ...$author_tax_query);
+			}
+
+			if( isset( $search_book_publisher ) && ! empty( $search_book_publisher ) ){
+				$args['tax_query']['relation'] = "OR";
+				array_push($args['tax_query'], ...$publisher_tax_query);
+			}
 
 			add_filter( 'posts_where', array( $this, 'title_filter' ), 10, 2 );
 			$get_books = new WP_Query($args); 
 			remove_filter( 'posts_where', array( $this, 'title_filter' ), 10 );
 
 			$i=1;
-			$books_table = "<tr><td>Sorry! No Books Found</td></tr>";
+			$books_table = "";
+			if( ! $get_books ){
+				$books_table = "<tr><td>Sorry! No Books Found</td></tr>";
+			}
 			foreach( $get_books->posts as $books ){
-				$books_table = "<tr>
+
+				$book_author 	= get_the_terms($books->ID, 'lbs-author-taxonomy');
+				$book_publisher = get_the_terms($books->ID, 'lbs-publisher-taxonomy');
+
+				$book_meta_data = get_post_meta( $books->ID );
+
+				$books_table .= "<tr>
 					<td>" . $i . "</td>
-					<td>" . $books->post_title . "</td>
-					<td>" . $i . "</td>
-					<td>" . $i . "</td>
-					<td>" . $i . "</td>
-					<td>" . $i . "</td>
+					<td><a href='" . get_permalink($books->ID) . "'>" . $books->post_title . "</a></td>
+					<td>" . $book_meta_data['lbs-book-price'][0] . "</td>
+					<td>" . $book_author[0]->name . "</td>
+					<td>" . $book_publisher[0]->name . "</td>
+					<td>" . $book_meta_data['lbs-stars'][0] . "</td>
 				</tr>";
 				$i++;
 			}

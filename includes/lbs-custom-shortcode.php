@@ -25,47 +25,51 @@ class LbsCustomShortcode {
 			<div class="lbs-search-form" id="lbs-search-form">
 				<h4 class="lbs-form-title"><?php esc_html_e( 'Book Search', 'library-book-search' ); ?></h4>
 				<form method="post" id="lbs-search-form" action="" >
-					<div class="lbs-fieldset">
-						<label for="lbs-book-name"><?php esc_html_e( 'Book Name: ', 'library-book-search' ); ?></label>
-						<input type="textbox" name="lbs-book-name" class="lbs-book-name" />
+					<div>
+						<div class="lbs-fieldset">
+							<label for="lbs-book-name"><?php esc_html_e( 'Book Name: ', 'library-book-search' ); ?></label><br/>
+							<input type="textbox" name="lbs-book-name" class="lbs-book-name" />
+						</div>
+						<div class="lbs-fieldset">
+							<label for="lbs-book-author"><?php esc_html_e( 'Author: ', 'library-book-search' ); ?></label>
+							<select name='lbs-book-author' class="lbs-book-author">
+								<option value=""><?php esc_html_e( 'Choose Any One', 'library-book-search' ); ?></option>
+								<?php
+								$texonomy = 'lbs-author-taxonomy';
+								$terms    = get_terms( $texonomy );
+								foreach ( $terms as $term ) {
+									echo "<option value='" . esc_html( $term->term_id ) . "' >" . esc_html( $term->name ) . '</option>';
+								}
+							?>
+							</select>
+						</div>
 					</div>
-					<div class="lbs-fieldset">
-						<label for="lbs-book-author"><?php esc_html_e( 'Author: ', 'library-book-search' ); ?></label>
-						<select name='lbs-book-author' class="lbs-book-author">
-							<option value=""><?php esc_html_e( 'Choose Any One', 'library-book-search' ); ?></option>
-							<?php
-							$texonomy = 'lbs-author-taxonomy';
-							$terms    = get_terms( $texonomy );
-							foreach ( $terms as $term ) {
-								echo "<option value='" . esc_html( $term->term_id ) . "' >" . esc_html( $term->name ) . '</option>';
-							}
-						?>
-						</select>
-					</div>
-					<div class="lbs-fieldset">
-						<label for="lbs-book-publisher"><?php esc_html_e( 'Publisher: ', 'library-book-search' ); ?></label>
-						<select name='lbs-book-publishers' class="lbs-book-publisher">
-							<option value=""><?php esc_html_e( 'Choose Any One', 'library-book-search' ); ?></option>
-							<?php
-							$texonomy = 'lbs-publisher-taxonomy';
-							$terms    = get_terms( $texonomy );
-							foreach ( $terms as $term ) {
-								echo "<option value='" . esc_html( $term->term_id ) . "' >" . esc_html( $term->name ) . '</option>';
-							}
-						?>
-						</select>
-					</div>
-					<div class="lbs-fieldset">
-						<label for="lbs-book-rating"><?php esc_html_e( 'Rating: ', 'library-book-search' ); ?></label>
-						<select name='lbs-book-rating' class="lbs-book-rating">
-							<option value=""><?php esc_html_e( 'Choose Any One', 'library-book-search' ); ?></option>
-							<option value="1"><?php esc_html_e( '1', 'library-book-search' ); ?></option>
-							<option value="2"><?php esc_html_e( '2', 'library-book-search' ); ?></option>
-							<option value="3"><?php esc_html_e( '3', 'library-book-search' ); ?></option>
-							<option value="4"><?php esc_html_e( '4', 'library-book-search' ); ?></option>
-							<option value="5"><?php esc_html_e( '5', 'library-book-search' ); ?></option>
-							<option value="na"><?php esc_html_e( 'N/A', 'library-book-search' ); ?></option>
-						</select>
+					<div>
+						<div class="lbs-fieldset">
+							<label for="lbs-book-publisher"><?php esc_html_e( 'Publisher: ', 'library-book-search' ); ?></label>
+							<select name='lbs-book-publishers' class="lbs-book-publisher">
+								<option value=""><?php esc_html_e( 'Choose Any One', 'library-book-search' ); ?></option>
+								<?php
+								$texonomy = 'lbs-publisher-taxonomy';
+								$terms    = get_terms( $texonomy );
+								foreach ( $terms as $term ) {
+									echo "<option value='" . esc_html( $term->term_id ) . "' >" . esc_html( $term->name ) . '</option>';
+								}
+							?>
+							</select>
+						</div>
+						<div class="lbs-fieldset">
+							<label for="lbs-book-rating"><?php esc_html_e( 'Rating: ', 'library-book-search' ); ?></label>
+							<select name='lbs-book-rating' class="lbs-book-rating">
+								<option value=""><?php esc_html_e( 'Choose Any One', 'library-book-search' ); ?></option>
+								<option value="1"><?php esc_html_e( '1', 'library-book-search' ); ?></option>
+								<option value="2"><?php esc_html_e( '2', 'library-book-search' ); ?></option>
+								<option value="3"><?php esc_html_e( '3', 'library-book-search' ); ?></option>
+								<option value="4"><?php esc_html_e( '4', 'library-book-search' ); ?></option>
+								<option value="5"><?php esc_html_e( '5', 'library-book-search' ); ?></option>
+								<option value="na"><?php esc_html_e( 'N/A', 'library-book-search' ); ?></option>
+							</select>
+						</div>
 					</div>
 					<div class="lbs-price-fieldset">
 
@@ -93,7 +97,7 @@ class LbsCustomShortcode {
 							<th><?php esc_html_e( 'Rating', 'library-book-search' ); ?></th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody id="lbs-books-search-data">
 						<?php
 						$i = 1;
 
@@ -102,7 +106,7 @@ class LbsCustomShortcode {
 						// Query to fetch post of Library Books.
 						$posts_query = new WP_Query(
 							array(
-								'posts_per_page' => 10,
+								'posts_per_page' => -1,
 								'post_type'      => 'library-search-book',
 								'post_status'    => 'publish',
 								'paged'          => $paged,

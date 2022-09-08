@@ -1,4 +1,10 @@
 jQuery(document).ready(function($){
+
+    $('.lbs-book-data-table').DataTable({
+        pagingType: 'full_numbers',
+        searching : false,
+    });
+
     $('#lbs-search-form').on('submit', function(e){
        e.preventDefault();
 
@@ -26,19 +32,25 @@ jQuery(document).ready(function($){
                     'book_price_to'     : lbs_book_price_to,
                 },
             },
-            success: function(response){
-                console.log( response );
+            success: function(res){
+                var lbs_book_search_data = Object.values(res)[1];
+                $('.lbs-book-data-table').DataTable().clear().destroy();
+                
+                $( "#lbs-books-search-data" ).html( lbs_book_search_data );
+
+                $('.lbs-book-data-table').DataTable({
+                    pagingType: 'full_numbers',
+                    searching : false,
+                });
+
             }, 
             error: function(data){
-                alert( 'hi' );
+                console.log( data );
             }
         });
         
     });
      
-    jQuery('.lbs-book-data-table').DataTable({
-        pagingType: 'full_numbers',
-    });
       
 });
 
