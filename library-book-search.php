@@ -161,33 +161,6 @@ if ( ! class_exists( 'LibraryBookSearch' ) ) {
 				'order'				=> 'ASC',
 			);
 
-			$author_tax_query 	= array(
-						array(
-							'taxonomy' => 'lbs-author-taxonomy',
-							'field' => 'id',
-							'terms' => $search_book_author
-						)
-					);
-
-			$publisher_tax_query 	= array(
-						array(
-							'taxonomy' => 'lbs-publisher-taxonomy',
-							'field' => 'id',
-							'terms' => $search_book_publisher
-						)
-					);
-
-
-			if( isset( $search_book_author ) && ! empty( $search_book_author ) ){
-				$args['tax_query']['relation'] = "OR";
-				array_push($args['tax_query'], ...$author_tax_query);
-			}
-
-			if( isset( $search_book_publisher ) && ! empty( $search_book_publisher ) ){
-				$args['tax_query']['relation'] = "OR";
-				array_push($args['tax_query'], ...$publisher_tax_query);
-			}
-
 			add_filter( 'posts_where', array( $this, 'title_filter' ), 10, 2 );
 			$get_books = new WP_Query($args); 
 			remove_filter( 'posts_where', array( $this, 'title_filter' ), 10 );
@@ -199,17 +172,14 @@ if ( ! class_exists( 'LibraryBookSearch' ) ) {
 			}
 			foreach( $get_books->posts as $books ){
 
-				$book_author 	= get_the_terms($books->ID, 'lbs-author-taxonomy');
-				$book_publisher = get_the_terms($books->ID, 'lbs-publisher-taxonomy');
-
 				$book_meta_data = get_post_meta( $books->ID );
 
 				$books_table .= "<tr>
 					<td>" . $i . "</td>
 					<td><a href='" . get_permalink($books->ID) . "'>" . $books->post_title . "</a></td>
 					<td>" . $book_meta_data['lbs-book-price'][0] . "</td>
-					<td>" . $book_author[0]->name . "</td>
-					<td>" . $book_publisher[0]->name . "</td>
+					<td>" . $book_meta_data['lbs-book-author'] . "</td>
+					<td>" . $book_meta_data['lbs-book-publisher'] . "</td>
 					<td>" . $book_meta_data['lbs-stars'][0] . "</td>
 				</tr>";
 				$i++;

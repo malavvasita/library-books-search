@@ -121,37 +121,12 @@ class LbsCustomShortcode {
 							$id         = $post->ID;
 							$book_title = $post->post_title;
 
-							// Get authors from term taxonomy.
-							$authors = get_the_terms( $id, 'lbs-author-taxonomy' );
-
-							// Get publishers from term taxonomy.
-							$publishers = get_the_terms( $id, 'lbs-publisher-taxonomy' );
-
-							$author_list    = '';
-							$publisher_list = '';
-
-							// Prepare author list for particular book.
-							if ( ! empty( $authors ) ) {
-								foreach ( $authors as $author ) {
-									$author_list .= $author->name . ', ';
-								}
-							} else {
-								$author_list = __( 'N/A', 'library-book-search' );
-							}
-
-							// Prepare publisher list for particular book.
-							if ( ! empty( $publishers ) ) {
-								foreach ( $publishers as $publisher ) {
-									$publisher_list .= $publisher->name . ', ';
-								}
-							} else {
-								$publisher_list = __( 'N/A', 'library-book-search' );
-							}
-
-							// Fetch meta values stored with post like price and rating of book.
-							$book_meta = get_post_meta( $id );
-							$price     = ( $book_meta['lbs-book-price'] )[0];
-							$rating    = ! empty( $book_meta['lbs-stars'] ) ? ( $book_meta['lbs-stars'] )[0] : __( 'N/A', 'library-book-search' );
+							// Fetch meta values stored with post of books.
+							$book_meta 	= get_post_meta( $id );
+							$price     	= ( $book_meta['lbs-book-price'] )[0] ?? 'N/A';
+							$authors	= ( $book_meta['lbs-book-author'] )[0] ?? 'N/A';
+							$publishers	= ( $book_meta['lbs-book-publisher'] )[0] ?? 'N/A';
+							$rating    	= ! empty( $book_meta['lbs-stars'] ) ? ( $book_meta['lbs-stars'] )[0] : __( 'N/A', 'library-book-search' );
 
 								echo '<tr>' .
 										'<td>' .
@@ -164,10 +139,10 @@ class LbsCustomShortcode {
 											esc_html( $price ) .
 										'</td>' .
 										'<td>' .
-											esc_html( rtrim( $author_list, ', ' ) ) .
+											esc_html( rtrim( $authors, ', ' ) ) .
 										'</td>' .
 										'<td>' .
-											esc_html( rtrim( $publisher_list, ', ' ) ) .
+											esc_html( rtrim( $publishers, ', ' ) ) .
 										'</td>' .
 										'<td>' .
 											esc_html( $rating ) .

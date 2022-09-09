@@ -43,6 +43,20 @@ class LbsCustomMetaBox {
 				</div>
 				<br/>
 				<div class="meta-th">
+					<label for="lbs-book-author" class="lbs-book-row-title"><?php echo esc_html__( 'Book Author', 'lbs-book' ); ?></label>
+				</div>
+				<div class="meta-td">
+					<input type="text" required="true" style="width: 100%;" name="lbs-book-author" id="lbs-book-author" value="<?php echo ! empty( $lbs_stored_meta['lbs-book-author'] ) ? esc_attr( $lbs_stored_meta['lbs-book-author'][0] ) : ''; ?>">
+				</div>
+				<br/>
+				<div class="meta-th">
+					<label for="lbs-book-publisher" class="lbs-book-row-title"><?php echo esc_html__( 'Book Publisher', 'lbs-book' ); ?></label>
+				</div>
+				<div class="meta-td">
+					<input type="text" required="true" style="width: 100%;" name="lbs-book-publisher" id="lbs-book-publisher" value="<?php echo ! empty( $lbs_stored_meta['lbs-book-publisher'] ) ? esc_attr( $lbs_stored_meta['lbs-book-publisher'][0] ) : ''; ?>">
+				</div>
+				<br/>
+				<div class="meta-th">
 					<label for="lbs-book-rating" class="lbs-book-row-title"><?php echo esc_html__( 'Book Rating', 'lbs-book' ); ?></label>
 				</div>
 				<div class="meta-td rating" >
@@ -104,6 +118,14 @@ class LbsCustomMetaBox {
 
 		if ( ! empty( filter_input( INPUT_POST, 'lbs-book-price' ) ) && is_numeric( filter_input( INPUT_POST, 'lbs-book-price' ) ) ) {
 			update_post_meta( $post_id, 'lbs-book-price', absint( filter_input( INPUT_POST, 'lbs-book-price' ) ) );
+		}
+
+		if ( ! empty( filter_input( INPUT_POST, 'lbs-book-author' ) ) ) {
+			update_post_meta( $post_id, 'lbs-book-author', filter_input( INPUT_POST, 'lbs-book-author' ) );
+		}
+
+		if ( ! empty( filter_input( INPUT_POST, 'lbs-book-publisher' ) ) ) {
+			update_post_meta( $post_id, 'lbs-book-publisher', filter_input( INPUT_POST, 'lbs-book-publisher' ) );
 		}
 	}
 
