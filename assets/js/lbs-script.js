@@ -5,19 +5,50 @@ jQuery(document).ready(function($){
         searching : false,
     });
 
+    var lbs_book_name        = '';
+    var lbs_book_author      = '';
+    var lbs_book_publisher   = '';
+    var lbs_book_rating      = '';
+    var lbs_book_price_from  = '';
+    var lbs_book_price_to    = '';
+
+    $( '.lbs-form-reset' ).click( function(){
+        lbs_book_name        = '';
+        lbs_book_author      = '';
+        lbs_book_publisher   = '';
+        lbs_book_rating      = '';
+        lbs_book_price_from  = '';
+        lbs_book_price_to    = '';
+
+        $('.lbs-book-name').val( '' );
+        $('.lbs-book-author').val( '' );
+        $('.lbs-book-publisher').val( '' );
+        $('.lbs-book-rating').val( '' );
+        $("#slider-range").slider("values", 0);
+        $("#slider-range").slider("values", 1);
+
+        booksSearchCallback();
+
+    } );
+
     $('#lbs-search-form').on('submit', function(e){
        e.preventDefault();
 
-       console.log( "Admin Ajax: " + localized_data.admin_ajax_path );
-    
-       var lbs_book_name        = $('.lbs-book-name').val();
-       var lbs_book_author      = $('.lbs-book-author').val();
-       var lbs_book_publisher   = $('.lbs-book-publisher').val();
-       var lbs_book_rating      = $('.lbs-book-rating').val();
-       var lbs_book_price_from  = jQuery("#slider-range").slider("values", 0);
-       var lbs_book_price_to    = jQuery("#slider-range").slider("values", 1);
+       lbs_book_name        = $('.lbs-book-name').val();
+       lbs_book_author      = $('.lbs-book-author').val();
+       lbs_book_publisher   = $('.lbs-book-publisher').val();
+       lbs_book_rating      = $('.lbs-book-rating').val();
+       lbs_book_price_from  = $("#slider-range").slider("values", 0);
+       lbs_book_price_to    = $("#slider-range").slider("values", 1);
 
-       $.ajax({
+
+
+       booksSearchCallback();
+        
+    });
+
+    function booksSearchCallback(){
+        $.ajax({
             url: localized_data.admin_ajax_path,
             type:"POST",
             dataType:'JSON',
@@ -48,18 +79,18 @@ jQuery(document).ready(function($){
                 console.log( data );
             }
         });
-        
-    });
+    }
      
       
 });
 
 jQuery(function () {
+
     jQuery("#slider-range").slider({
         range: true,
-        min: 0,
-        max: 5000,
-        values: [100, 2000],
+        min: Number( localized_data.books_min_price ),
+        max: Number( localized_data.books_max_price ),
+        values: [localized_data.books_min_price, localized_data.books_max_price],
         slide: function (event, ui) {
             jQuery("#amount").val("₹ " + ui.values[0] + " - ₹ " + ui.values[1]);
         }

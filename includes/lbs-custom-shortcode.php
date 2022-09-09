@@ -35,10 +35,13 @@ class LbsCustomShortcode {
 							<select name='lbs-book-author' class="lbs-book-author">
 								<option value=""><?php esc_html_e( 'Choose Any One', 'library-book-search' ); ?></option>
 								<?php
-								$texonomy = 'lbs-author-taxonomy';
-								$terms    = get_terms( $texonomy );
-								foreach ( $terms as $term ) {
-									echo "<option value='" . esc_html( $term->term_id ) . "' >" . esc_html( $term->name ) . '</option>';
+								
+								$get_authors_query = "SELECT DISTINCT `meta_value` as name FROM `" . $wpdb->prefix . "postmeta` WHERE `meta_key` = 'lbs-book-author'";
+
+								$authors = $wpdb->get_results( $get_authors_query );
+
+								foreach ( $authors as $author ) {
+									echo "<option value='" . esc_html( $author->name ) . "' >" . esc_html( $author->name ) . '</option>';
 								}
 							?>
 							</select>
@@ -50,10 +53,12 @@ class LbsCustomShortcode {
 							<select name='lbs-book-publishers' class="lbs-book-publisher">
 								<option value=""><?php esc_html_e( 'Choose Any One', 'library-book-search' ); ?></option>
 								<?php
-								$texonomy = 'lbs-publisher-taxonomy';
-								$terms    = get_terms( $texonomy );
-								foreach ( $terms as $term ) {
-									echo "<option value='" . esc_html( $term->term_id ) . "' >" . esc_html( $term->name ) . '</option>';
+								$get_publishers_query = "SELECT DISTINCT `meta_value` as name FROM `" . $wpdb->prefix . "postmeta` WHERE `meta_key` = 'lbs-book-publisher'";
+
+								$publishers = $wpdb->get_results( $get_publishers_query );
+
+								foreach ( $publishers as $publisher ) {
+									echo "<option value='" . esc_html( $publisher->name ) . "' >" . esc_html( $publisher->name ) . '</option>';
 								}
 							?>
 							</select>
@@ -81,6 +86,7 @@ class LbsCustomShortcode {
 					<input type="hidden" name="lbs-search-action" class="lbs-search-action" value="lbs-search">
 					<div class="lbs-submit">
 						<input type="submit" class="lbs-form-submit" name="lbs-book-submit" value="<?php esc_html_e( 'SEARCH', 'library-book-search' ); ?>" />
+						<input type="button" class="lbs-form-reset" name="lbs-book-reset" value="<?php esc_html_e( 'Reset Search', 'library-book-search' ); ?>" />
 					</div>
 				</form>
 			</div>
@@ -89,7 +95,7 @@ class LbsCustomShortcode {
 				<table class="lbs-book-data-table">
 					<thead>
 						<tr>
-							<th><?php esc_html_e( 'No', 'library-book-search' ); ?></th>
+							<th><?php esc_html_e( 'Sr. No', 'library-book-search' ); ?></th>
 							<th><?php esc_html_e( 'Book Name', 'library-book-search' ); ?></th>
 							<th><?php esc_html_e( 'Price', 'library-book-search' ); ?></th>
 							<th><?php esc_html_e( 'Author', 'library-book-search' ); ?></th>

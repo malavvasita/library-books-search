@@ -52,9 +52,19 @@ if ( ! class_exists( 'LibraryBookSearch' ) ) {
 		 * Enqueue all styles and scripts in user side.
 		 */
 		public function lbs_enqueue_styles_scripts() {
+
+			global $wpdb;
+
+
+			$min_max_book_price_query = "SELECT MIN( `meta_value`+0 ) as min, MAX( `meta_value`+0 ) as max FROM `" . $wpdb->prefix . "postmeta` WHERE `meta_key` = 'lbs-book-price'";
+
+			$min_max_book_price = $wpdb->get_results( $min_max_book_price_query );
+
 			$localize_data = [
 				'admin_ajax_path'  => admin_url( 'admin-ajax.php' ),
 				'search_data_path' => LBS_DIR_URL . 'includes/lbs-search-data.php',
+				'books_min_price'  => intval( $min_max_book_price[0]->min ),
+				'books_max_price'  => intval( $min_max_book_price[0]->max ),
 			];
 
 			wp_enqueue_style( 'lbs-style', LBS_DIR_URL . 'assets/css/lbs-style/lbs-style.css' );
@@ -145,12 +155,12 @@ if ( ! class_exists( 'LibraryBookSearch' ) ) {
 
 			$search_data_input = filter_input_array( INPUT_POST )['data'];
 
-			$search_book_name 		= $search_data_input['book_name'];
-			$search_book_author 	= $search_data_input['book_author'];
-			$search_book_publisher 	= $search_data_input['book_publisher'];
-			$search_book_rating 	= $search_data_input['book_rating'];
-			$search_book_price_from = $search_data_input['book_price_from'];
-			$search_book_price_to 	= $search_data_input['book_price_to'];
+			$search_book_name 		= $search_data_input['book_name'] ?? '';
+			$search_book_author 	= $search_data_input['book_author'] ?? '';
+			$search_book_publisher 	= $search_data_input['book_publisher'] ?? '';
+			$search_book_rating 	= $search_data_input['book_rating'] ?? '';
+			$search_book_price_from = $search_data_input['book_price_from'] ?? '';
+			$search_book_price_to 	= $search_data_input['book_price_to'] ?? '';
 
 			$args = array(
 				'posts_per_page' 	=> -1,
@@ -161,9 +171,69 @@ if ( ! class_exists( 'LibraryBookSearch' ) ) {
 				'order'				=> 'ASC',
 			);
 
+			$price_from_meta_query = array(
+				'key'			=> 'lbs-book-price',
+				'value'			=> $search_book_price_from,
+				'compare'		=> '>=',
+				'type'			=> 'NUMERIC'
+			);
+
+			$price_to_meta_query = array(
+				'key'			=> 'lbs-book-price',
+				'value'			=> $search_book_price_to,
+				'compare'		=> '<=',
+				'type'			=> 'NUMERIC'
+			);
+			
+			$rating_meta_query = array(
+				'key'			=> 'lbs-stars',
+				'value'			=> $search_book_rating,
+				'compare'		=> '=',
+			);
+			
+			$author_meta_query = array(
+				'key'			=> 'lbs-book-author',
+				'value'			=> $search_book_author,
+				'compare'		=> '=',
+			);
+			
+			$publisher_meta_query = array(
+				'key'			=> 'lbs-book-publisher',
+				'value'			=> $search_book_publisher,
+				'compare'		=> '=',
+			);
+
+			if( isset( $search_book_author ) && ! empty( $search_book_author ) ){
+				$args['meta_query']['relation'] = "AND";
+				array_push($args['meta_query'], $author_meta_query);
+			}
+
+			if( isset( $search_book_publisher ) && ! empty( $search_book_publisher ) ){
+				$args['meta_query']['relation'] = "AND";
+				array_push($args['meta_query'], $publisher_meta_query);
+			}
+
+			if( isset( $search_book_rating ) && ! empty( $search_book_rating ) ){
+				$args['meta_query']['relation'] = "AND";
+				array_push($args['meta_query'], $rating_meta_query);
+			}
+
+			if( isset( $search_book_price_from ) && ! empty( $search_book_price_from ) ){
+				$args['meta_query']['relation'] = "AND";
+				array_push($args['meta_query'], $price_from_meta_query);
+			}
+
+			if( isset( $search_book_price_to ) && ! empty( $search_book_price_to ) ){
+				$args['meta_query']['relation'] = "AND";
+				array_push($args['meta_query'], $price_to_meta_query);
+			}
+
+
 			add_filter( 'posts_where', array( $this, 'title_filter' ), 10, 2 );
 			$get_books = new WP_Query($args); 
 			remove_filter( 'posts_where', array( $this, 'title_filter' ), 10 );
+
+			// var_dump( $get_books );
 
 			$i=1;
 			$books_table = "";
@@ -178,8 +248,8 @@ if ( ! class_exists( 'LibraryBookSearch' ) ) {
 					<td>" . $i . "</td>
 					<td><a href='" . get_permalink($books->ID) . "'>" . $books->post_title . "</a></td>
 					<td>" . $book_meta_data['lbs-book-price'][0] . "</td>
-					<td>" . $book_meta_data['lbs-book-author'] . "</td>
-					<td>" . $book_meta_data['lbs-book-publisher'] . "</td>
+					<td>" . $book_meta_data['lbs-book-author'][0] . "</td>
+					<td>" . $book_meta_data['lbs-book-publisher'][0] . "</td>
 					<td>" . $book_meta_data['lbs-stars'][0] . "</td>
 				</tr>";
 				$i++;
