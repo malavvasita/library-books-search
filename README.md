@@ -18,13 +18,13 @@ You are good to go now.
 You can download this plugin and put it in your site's plugin folder OR clone this plugin using command provided below.
 
 ```
-git clone https://github.com/malavvasita/Library-Book-Search.git
+git clone https://github.com/malavvasita/library-books-search.git
 ```
 
 After downloading or cloning just activate the plugin through Admin panel or WP-CLI command as given below.
 
 ```
-wp plugin activate Library-Book-Search
+wp plugin activate library-books-search
 ```
 
 ## Deployment
