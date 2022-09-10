@@ -11,14 +11,31 @@
  * License URI:  https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:  'library-book-search'
  * Domain Path: /languages
+ * 
+ * Library book search plugin can be helpful to search the available books
+ * by it's author, publisher, name and ratings
+ * 
+ * php version 8.0.0
  *
- * @package libraryBookSeach
- **/
+ * @category Library_Book_Search
+ * @package  LibraryBookSeach
+ * @author   Malav V. <malavvasita.mv@gmail.com>
+ * @license  https://www.gnu.org/licences/gpl-3.0.txt GNU/GPLv3
+ * @version  GIT: @1.0.0@
+ * @link     https://github.com/malavvasita/library-book-search
+ * */
 
 if (! class_exists('LibraryBookSearch') ) {
 
     /**
      * Main class of plugin where all the actions begins.
+     * 
+     * @category Library_Book_Search
+     * @package  LibraryBookSeach
+     * @author   Malav V. <malavvasita.mv@gmail.com>
+     * @license  https://www.gnu.org/licences/gpl-3.0.txt GNU/GPLv3
+     * @version  Release: @1.0.0@
+     * @link     https://github.com/malavvasita/library-book-search
      */
     class LibraryBookSearch
     {
@@ -39,30 +56,45 @@ if (! class_exists('LibraryBookSearch') ) {
 
         /**
          * Enqueue all styles and scripts in admin side.
+         * 
+         * @return NULL Enqueuing Admin Style CSS
          */
-        public function lbs_admin_enqueue_styles()
+        public function lbsAdminEnqueueStyles()
         {
-            wp_enqueue_style('lbs_admin_style', LBS_DIR_URL . 'assets/css/admin-style/lbs-admin-style.css');
+            wp_enqueue_style(
+                'lbs_admin_style', 
+                LBS_DIR_URL . 'assets/css/admin-style/lbs-admin-style.css'
+            );
         }
 
         /**
          * Enqueue jquery-form to enable ajax action in searching.
+         * 
+         * @return NULL Enquiuing JS Form library of WP
          */
-        public function enqueue_jquery_form()
+        public function enqueueJqueryForm()
         {
             wp_enqueue_script('jquery-form');
         }
 
         /**
          * Enqueue all styles and scripts in user side.
+         * 
+         * @return NULL Enqueuing Plugin Styles and Scripts
          */
-        public function lbs_enqueue_styles_scripts()
+        public function lbsEnqueueStylesScripts()
         {
 
             global $wpdb;
 
 
-            $min_max_book_price_query = "SELECT MIN( `meta_value`+0 ) as min, MAX( `meta_value`+0 ) as max FROM `" . $wpdb->prefix . "postmeta` WHERE `meta_key` = 'lbs-book-price'";
+            $min_max_book_price_query = "SELECT 
+                    MIN( `meta_value`+0 ) as min, 
+                    MAX( `meta_value`+0 ) as max 
+                FROM 
+                    `" . $wpdb->prefix . "postmeta` 
+                WHERE
+                `meta_key` = 'lbs-book-price'";
 
             $min_max_book_price = $wpdb->get_results($min_max_book_price_query);
 
@@ -73,37 +105,64 @@ if (! class_exists('LibraryBookSearch') ) {
             'books_max_price'  => intval($min_max_book_price[0]->max),
             ];
 
-            wp_enqueue_style('lbs-style', LBS_DIR_URL . 'assets/css/lbs-style/lbs-style.css');
-            wp_enqueue_style('lbs-jquery-style', 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css');
-            wp_enqueue_style('lbs-datatables-style', 'https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css');
+            wp_enqueue_style(
+                'lbs-style', 
+                LBS_DIR_URL . 'assets/css/lbs-style/lbs-style.css'
+            );
+            wp_enqueue_style(
+                'lbs-jquery-style', 
+                LBS_DIR_URL . 'assets/css/lbs-style/jquery-ui.min.css'
+            );
+            wp_enqueue_style(
+                'lbs-datatables-style', 
+                LBS_DIR_URL . 'assets/css/lbs-style/jquery.dataTables.min.css'
+            );
             
-            wp_enqueue_script('jquery-ui-script', 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js');
-            wp_enqueue_script('jquery-datatables-script', 'https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js');
-            wp_enqueue_script('lbs-script', LBS_DIR_URL . 'assets/js/lbs-script.js');
+            wp_enqueue_script(
+                'jquery-ui-script', 
+                LBS_DIR_URL . 'assets/js/jquery-ui.js'
+            );
+            wp_enqueue_script(
+                'jquery-datatables-script', 
+                LBS_DIR_URL . 'assets/js/jquery.dataTables.min.js'
+            );
+            wp_enqueue_script(
+                'lbs-script', 
+                LBS_DIR_URL . 'assets/js/lbs-script.js'
+            );
 
-            wp_localize_script('lbs-script', 'localized_data', $localize_data);
+            wp_localize_script(
+                'lbs-script', 
+                'localized_data', $localize_data
+            );
         }
 
         /**
          * Handle activation of plugin.
+         * 
+         * @return NULL Flushing rewrite rules on activation
          */
-        public function library_book_search_activate_plugin()
+        public function libraryBookSearchActivatePlugin()
         {
             flush_rewrite_rules();
         }
 
         /**
          * Handle deactivation of plugin.
+         * 
+         * @return NULL flushing rewrite rules for WP
          */
-        public function library_book_search_deactivate_plugin()
+        public function libraryBookSearchDeactivatePlugin()
         {
             flush_rewrite_rules();
         }
 
         /**
          * Handle uninstallation of plugin.
+         * 
+         * @return NULL Call this while uninstallung the plugin
          */
-        public function library_book_search_uninstall_plugin()
+        public function libraryBookSearchUninstallPlugin()
         {
             include_once LBS_DIR_PATH . 'includes/uninstall.php';
             LibrabryBooksSearchUninstall::LbsUninstallPlugin();
@@ -111,12 +170,14 @@ if (! class_exists('LibraryBookSearch') ) {
 
         /**
          * Create Custom Post Type of Library Book to store books details.
+         * 
+         * @return NULL registering custom post type
          */
         public function libraryBookSearchCustomPostType()
         {
             include_once LBS_DIR_PATH . 'includes/lbs-custom-post-type.php';
             $lbs_cpt = new LbsCustomPostType();
-            $lbs_cpt->lbs_custom_post_type();
+            $lbs_cpt->lbsCustomPostType();
         }
 
         /**
@@ -130,11 +191,11 @@ if (! class_exists('LibraryBookSearch') ) {
             $lbs_meta_box = new LbsCustomMetaBox();
             add_action(
                 'add_meta_boxes', 
-                array( $lbs_meta_box, 'lbs_custom_meta_box' )
+                array( $lbs_meta_box, 'lbsCustomMetaBox' )
             );
             add_action(
                 'save_post', 
-                array( $lbs_meta_box, 'lbs_meta_save' )
+                array( $lbs_meta_box, 'lbsMetaSave' )
             );
         }
 
@@ -149,7 +210,7 @@ if (! class_exists('LibraryBookSearch') ) {
             $lbs_custom_shortcode = new LbsCustomShortcode();
             add_shortcode(
                 'booksearch', 
-                array( $lbs_custom_shortcode, 'lbs_custom_shortcode' )
+                array( $lbs_custom_shortcode, 'lbsCustomShortcode' )
             );
         }
 
@@ -308,6 +369,55 @@ if (! class_exists('LibraryBookSearch') ) {
             die();
         }
 
+        /**
+         * Altering Title on Single page with Metadata.
+         * 
+         * @param $title Getting default title to alter
+         * @param $id    Post ID to work with
+         * 
+         * @return $title   Altered title if Post Type is LBS
+         */
+        public function addMetadataAfterTitle($title, $id)
+        {
+            $books_meta_html = "";
+            if (! is_admin()  
+                && 'library-search-book' == get_post_type($id) 
+                && is_single()
+            ) {
+                global $wpdb;
+
+                $get_library_book_search_meta_data = get_post_meta($id);
+
+                if ($get_library_book_search_meta_data['lbs-book-author'][0] ) {
+                    $books_meta_html .= "<br>By " . 
+                    $get_library_book_search_meta_data['lbs-book-author'][0];
+                }
+                
+                if ($get_library_book_search_meta_data['lbs-book-publisher'][0] ) {
+                    $books_meta_html .= 
+                    " [" . 
+                    $get_library_book_search_meta_data['lbs-book-publisher'][0] .
+                    "]";
+                }
+
+                if ($get_library_book_search_meta_data['lbs-stars'][0] ) {
+                    $books_meta_html .= " | Rating: " . 
+                    $get_library_book_search_meta_data['lbs-stars'][0];
+                }
+
+                if ($get_library_book_search_meta_data['lbs-book-price'][0] ) {
+                    $books_meta_html .= " | Price: " . 
+                    $get_library_book_search_meta_data['lbs-book-price'][0];
+                }
+
+                return "<u>" . $title . "</u>" . $books_meta_html;
+                
+            }
+
+            return $title;
+
+        }
+
     }
 
     // Instantiate the object of Library Book Search.
@@ -316,19 +426,19 @@ if (! class_exists('LibraryBookSearch') ) {
     // Enqueuing jQuery form script of WordPress.
     add_action(
         'wp_enqueue_scripts',
-        array( $library_book_search, 'enqueue_jquery_form' )
+        array( $library_book_search, 'enqueueJqueryForm' )
     );
 
     // Enqueuing admin styles.
     add_action(
         'admin_head', 
-        array( $library_book_search, 'lbs_admin_enqueue_styles' )
+        array( $library_book_search, 'lbsAdminEnqueueStyles' )
     );
 
     // Enqueuing all necessary style and script in front end.
     add_action(
         'wp_head',
-        array( $library_book_search, 'lbs_enqueue_styles_scripts' )
+        array( $library_book_search, 'lbsEnqueueStylesScripts' )
     );
 
     // Created custom post type of Library Book on init of plugin.
@@ -353,25 +463,33 @@ if (! class_exists('LibraryBookSearch') ) {
         array( $library_book_search, 'lbsSearch' )
     );
 
+    // Adding Metadata after single page title
+    add_filter(
+        'the_title', 
+        array( $library_book_search, 'addMetadataAfterTitle' ), 
+        10, 
+        2
+    );
+
     // Calling function of metabox.
     $library_book_search->libraryBookSearchCustomMetaBox();
 
     // Defining activation hook of plugin.
     register_activation_hook(
         __FILE__,
-        array( $library_book_search, 'library_book_search_activate_plugin' )
+        array( $library_book_search, 'libraryBookSearchActivatePlugin' )
     );
 
     // Defining deactivation hook of plugin.
     register_deactivation_hook(
         __FILE__,
-        array( $library_book_search, 'library_book_search_deactivate_plugin' )
+        array( $library_book_search, 'libraryBookSearchDeactivatePlugin' )
     );
 
     // Defining uninstallation hook of plugin.
     register_uninstall_hook(
         __FILE__,
-        array( 'library_book_search_uninstall_plugin' )
+        array( 'libraryBookSearchUninstallPlugin' )
     );
 
 }
